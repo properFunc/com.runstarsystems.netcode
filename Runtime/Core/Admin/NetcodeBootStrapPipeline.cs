@@ -69,6 +69,27 @@ namespace RunstarSystems.ECS.Admin
                             global_type_registry,
                             server_types);
 
+            Debug.Log("=== SERVER INHERIT MATCHES AFTER COPY ===");
+
+            IReadOnlyList<metadata.RegistryMetadata<InheritFromGroupAttribute>> inherit_matches =
+                    server_registry.GetMatches
+                            <InheritFromGroupAttribute,
+                                InheritFromGroupAttribute>();
+
+            for (int index = 0; index < inherit_matches.Count; index++)
+            {
+                metadata.RegistryMetadata<InheritFromGroupAttribute> match =
+                        inherit_matches[index];
+
+                Debug.Log(
+                        "Server inherit match: child=" +
+                        match.MatchedType.FullName +
+                        " parent=" +
+                        match.Metadata.GroupType.FullName +
+                        " inherited=" +
+                        match.IsInherited);
+            }
+
             return new metadata.NetworkWorldContext(
                     local_registry,
                     client_registry,
