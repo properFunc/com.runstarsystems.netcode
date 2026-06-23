@@ -1,4 +1,6 @@
+using Unity.Entities;
 using Unity.NetCode;
+using UnityEngine;
 
 namespace RunstarSystems.ECS.Admin
 {
@@ -6,7 +8,17 @@ namespace RunstarSystems.ECS.Admin
     {
         public override bool Initialize(string defaultWorldName)
         {
-            Debug.Log("Running Bootstrap");
+            Debug.Log("Runstar filler bootstrap active.");
+
+            World filler_world =
+                    new World(defaultWorldName);
+
+            World.DefaultGameObjectInjectionWorld =
+                    filler_world;
+
+            ScriptBehaviourUpdateOrder.AppendWorldToCurrentPlayerLoop(
+                    filler_world);
+
             return true;
         }
     }
