@@ -1,0 +1,14 @@
+{
+  "name": "com.runstarsystems.netcode",
+  "version": "1.0.0",
+  "displayName": "Runstar ECS Netcode",
+  "description": "Netcode for Entities extension for Runstar ECS Core.",
+  "unity": "6000.0",
+  "author": {
+    "name": "Runstar Systems"
+  },
+  "dependencies": {
+    "com.runstarsystems.ecs": "1.0.3",
+    "com.unity.netcode": "1.4.0"
+  }
+}

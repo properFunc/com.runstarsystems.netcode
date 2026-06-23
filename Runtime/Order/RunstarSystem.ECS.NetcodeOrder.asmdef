@@ -1,0 +1,23 @@
+{
+  "name": "RunstarSystems.ECS.NetcodeOrder",
+  "rootNamespace": "RunstarSystems.ECS",
+  "references": [
+    "Unity.Entities",
+    "Unity.Mathematics",
+    "Unity.Collections",
+    "Unity.NetCode",
+    "Unity.Transport",
+    "RunstarSystems.ECS.Order",
+    "RunstarSystems.ECS.Core",
+    "RunstarSystems.ECS.NetcodeCore"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

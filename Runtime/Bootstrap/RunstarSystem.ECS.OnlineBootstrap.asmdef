@@ -1,0 +1,30 @@
+{
+  "name": "RunstarSystems.ECS.OnlineBootstrap",
+  "rootNamespace": "RunstarSystems.ECS",
+  "references": [
+    "Unity.Entities",
+    "Unity.Mathematics",
+    "Unity.Collections",
+    "Unity.NetCode",
+    "Unity.Transport",
+    "RunstarSystems.ECS.Core",
+    "RunstarSystems.ECS.NetcodeCore"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "CUSTOM_BOOTSTRAP_PACKAGE_PRESENT"
+  ],
+  "versionDefines": [
+    {
+      "name": "com.custom.bootstrap",
+      "expression": "[0.0.0,999.0.0]",
+      "define": "CUSTOM_BOOTSTRAP_PACKAGE_PRESENT"
+    }
+  ],
+  "noEngineReferences": false
+}
