@@ -6,6 +6,7 @@ namespace RunstarSystems.ECS.Admin
     {
         public override bool Initialize(string defaultWorldName)
         {
+            Debug.Log("Running Bootstrap");
             return true;
         }
     }
