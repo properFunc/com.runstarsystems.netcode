@@ -110,15 +110,20 @@ namespace RunstarSystems.ECS.Admin
                     NetcodeBootStrapPipeline.BuildWorldRegistries(
                             context.TypeRegistry);
 
-            /*
-            *   Remove only Runstar-owned default candidates.
-            *
-            *   Since the registry was built from local_system_types only,
-            *   this should not remove explicit ClientSimulation,
-            *   ServerSimulation, or ThinClientSimulation systems.
-            */
             RunstarBootStrapPipeline.RemoveRegistryTypes(
                     local_system_types,
+                    context.TypeRegistry);
+
+            RunstarBootStrapPipeline.RemoveRegistryTypes(
+                    client_system_types,
+                    context.TypeRegistry);
+
+            RunstarBootStrapPipeline.RemoveRegistryTypes(
+                    thin_client_system_types,
+                    context.TypeRegistry);
+
+            RunstarBootStrapPipeline.RemoveRegistryTypes(
+                    server_system_types,
                     context.TypeRegistry);
 
             LocalSystemTypes = local_system_types;
