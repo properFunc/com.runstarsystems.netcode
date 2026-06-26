@@ -7,6 +7,15 @@ using RunstarSystems.ECS.Attributes;
 
 namespace RunstarSystems.ECS.Admin
 {
+    /*
+    *   As of now just adds builds world registreis
+    *   this allows the system to find matching types
+    *   Filter through attributes and add Runstar data to
+    *   seperate worlds depending on the filter
+    *
+    *   Since the type registry flattens the metadata
+    *   this can also target inherited attributes
+    */
     public static class NetcodeBootStrapPipeline
     {
         public static metadata.NetworkWorldContext BuildWorldRegistries(

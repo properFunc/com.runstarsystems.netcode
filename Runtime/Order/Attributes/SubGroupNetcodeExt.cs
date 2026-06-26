@@ -2,6 +2,10 @@ using System;
 
 using group = RunstarSystems.ECS.Groups;
 
+/*
+*   Extension to the core order system for priority groups
+*   Allows systems to also connect to Unity's Prediciton pipeline
+*/
 namespace RunstarSystems.ECS.Attributes
 {
     /*

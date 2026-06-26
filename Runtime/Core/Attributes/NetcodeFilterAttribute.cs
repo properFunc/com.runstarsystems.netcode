@@ -1,6 +1,11 @@
 using System;
 using RunstarSystems.ECS.Data;
 
+/*
+*   Allows systems to filter into different worlds
+*   these traits can be passed down to their children
+*   via InheritMode and other attribute [InheritFromGroup()]
+*/
 namespace RunstarSystems.ECS.Attributes
 {
     [AttributeUsage(

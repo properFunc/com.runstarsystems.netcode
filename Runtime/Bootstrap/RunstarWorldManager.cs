@@ -13,12 +13,21 @@ namespace RunstarSystems.ECS.Admin
 {
     public sealed class RunstarWorldManager
     {
+        /*
+        *   Holds all registry types for each network world
+        */
         public metadata.NetworkWorldContext NetworkWorldContext { get; private set; }
 
         public IReadOnlyList<IRunstarOrganizer> Organizers { get; private set; }
 
         public IReadOnlyList<Type> AssemblyTypes { get; private set; }
 
+
+        /*
+        *   These are global registries that are meant to build the world
+        *   I dont have them seperated like I probably should be for now
+        *   that is okay
+        */
         public IReadOnlyList<Type> LocalSystemTypes { get; private set; }
 
         public IReadOnlyList<Type> ClientSystemTypes { get; private set; }
@@ -27,14 +36,23 @@ namespace RunstarSystems.ECS.Admin
 
         public IReadOnlyList<Type> ServerSystemTypes { get; private set; }
 
-        public const int PREFILTER_PRIORITY = 100;
+        public const int PREFILTER_PRIORITY = 100; // Used for organizers before client/server filter
 
         public RunstarWorldManager()
         {
         }
 
+        /*
+        *   Creates the systems, organizer and types list
+        *   Then uses that to build the global type registry and cache
+        *   Allows organizers that want to target all types to do so here
+        *
+        *   Examples include inheritance and type registries
+        */
         public metadata.RunstarOrganizerContext Init()
         {
+            // Since Runstar cannot use Unity attributes
+            // All of its data will be here
             List<Type> local_system_types =
                     DefaultWorldInitialization
                             .GetAllSystems(WorldSystemFilterFlags.Default)
@@ -59,6 +77,7 @@ namespace RunstarSystems.ECS.Admin
                                     WorldSystemFilterFlags.ServerSimulation)
                             .ToList();
 
+            // This grabs all the type required for Runstar including metadata
             List<Type> assembly_types =
                     AssemblyScanner.GetAllAssemblyTypes();
 
@@ -68,25 +87,13 @@ namespace RunstarSystems.ECS.Admin
             registry.InheritCache inherit_cache =
                     new registry.InheritCache();
 
-            /*
-            *   Organizers are discovered from all assembly types.
-            *   They are tools that operate on the registry, so they should
-            *   not be limited to the default system list.
-            */
+
             List<IRunstarOrganizer> organizers =
                     RunstarBootStrapPipeline.CreateOrganizers(
                             assembly_types);
 
-            /*
-            *   Runstar only registers metadata from default-world candidates.
-            *
-            *   This means explicit Netcode/Entities world-filtered systems
-            *   remain owned by Unity/Netcode and are not pulled into the
-            *   Runstar registry.
-            *
-            *   Priority:
-            *       Netcode for Entities > Runstar > Entities
-            */
+            // We dont need a world with global
+            // Ass global gets removed after the other registries are built
             metadata.RunstarOrganizerContext context =
                     RunstarBootStrapPipeline.RegisterAttributes(
                             organizers,
@@ -95,11 +102,7 @@ namespace RunstarSystems.ECS.Admin
                             inherit_cache,
                             local_system_types);
 
-            /*
-            *   Run early organizers against the default-only global registry.
-            *   This is where inheritance/filter traits are resolved before
-            *   the network registry split happens.
-            */
+
             RunstarBootStrapPipeline.RunOrganizers(
                     organizers,
                     context,
@@ -110,6 +113,14 @@ namespace RunstarSystems.ECS.Admin
                     NetcodeBootStrapPipeline.BuildWorldRegistries(
                             context.TypeRegistry);
 
+            /*
+            *   This deletes all registry types used by runstar
+            *   from the type list in each default world
+            *
+            *
+            *   This allows use to seperate Runstar Attributes
+            *   from Unity attributes automatically
+            */
             RunstarBootStrapPipeline.RemoveRegistryTypes(
                     local_system_types,
                     context.TypeRegistry);
@@ -138,132 +149,89 @@ namespace RunstarSystems.ECS.Admin
             return context;
         }
 
-        public metadata.RunstarOrganizerContext CreateLocalContext(
+        /*
+        *   These are meant to create the worlds and build
+        *   the context around the worlds
+        *
+        *   I reuse the same context struct so inherit is just null
+        *   since it is only required for global
+        */
+        public static metadata.RunstarOrganizerContext CreateLocalContext(
                 string default_world_name = "Runstar Local World",
                 registry.TypeRegistry type_registry = null)
         {
-            registry.TypeRegistry selected_registry =
-                    type_registry;
-
-            if (selected_registry == null &&
-                    NetworkWorldContext != null)
-            {
-                selected_registry =
-                        NetworkWorldContext.Local;
-            }
-
-            if (selected_registry == null)
-            {
-                Debug.LogWarning(
-                        "RunstarWorldManager could not create local context. " +
-                        "No TypeRegistry was provided and no local registry exists.");
-
-                return null;
-            }
-
-            World world =
-                    new World(default_world_name);
-
-            World.DefaultGameObjectInjectionWorld =
-                    world;
-
-            return new metadata.RunstarOrganizerContext(
-                    world,
-                    selected_registry,
-                    null);
+            return CreateWorldContext(
+                    default_world_name,
+                    type_registry,
+                    context => context.Local,
+                    WorldFlags.Game,
+                    world => World.DefaultGameObjectInjectionWorld = world,
+                    "Runstar Local");
         }
 
         public metadata.RunstarOrganizerContext CreateClientContext(
                 string world_name = "Runstar Client World",
                 registry.TypeRegistry type_registry = null)
         {
-            registry.TypeRegistry selected_registry =
-                    type_registry;
-
-            if (selected_registry == null &&
-                    NetworkWorldContext != null)
-            {
-                selected_registry =
-                        NetworkWorldContext.Client;
-            }
-
-            if (selected_registry == null)
-            {
-                Debug.LogWarning(
-                        "RunstarWorldManager could not create client context. " +
-                        "No TypeRegistry was provided and no client registry exists.");
-
-                return null;
-            }
-
-            World world =
-                    new World(
-                            world_name,
-                            WorldFlags.GameClient);
-
-            ClientServerBootstrap.ClientWorlds.Add(world);
-
-            return new metadata.RunstarOrganizerContext(
-                    world,
-                    selected_registry,
-                    null);
+            return CreateWorldContext(
+                    world_name,
+                    type_registry,
+                    context => context.Client,
+                    WorldFlags.GameClient,
+                    world => ClientServerBootstrap.ClientWorlds.Add(world),
+                    "Runstar Client");
         }
 
         public metadata.RunstarOrganizerContext CreateThinClientContext(
                 string world_name = "Runstar Thin Client World",
                 registry.TypeRegistry type_registry = null)
         {
-            registry.TypeRegistry selected_registry =
-                    type_registry;
-
-            if (selected_registry == null &&
-                    NetworkWorldContext != null)
-            {
-                selected_registry =
-                        NetworkWorldContext.ThinClient;
-            }
-
-            if (selected_registry == null)
-            {
-                Debug.LogWarning(
-                        "RunstarWorldManager could not create thin client context. " +
-                        "No TypeRegistry was provided and no thin client registry exists.");
-
-                return null;
-            }
-
-            World world =
-                    new World(
-                            world_name,
-                            WorldFlags.GameThinClient);
-
-            ClientServerBootstrap.ThinClientWorlds.Add(world);
-
-            return new metadata.RunstarOrganizerContext(
-                    world,
-                    selected_registry,
-                    null);
+            return CreateWorldContext(
+                    world_name,
+                    type_registry,
+                    context => context.ThinClient,
+                    WorldFlags.GameThinClient,
+                    world => ClientServerBootstrap.ThinClientWorlds.Add(world),
+                    "Runstar Thin Client");
         }
 
         public metadata.RunstarOrganizerContext CreateServerContext(
                 string world_name = "Runstar Server World",
                 registry.TypeRegistry type_registry = null)
         {
+            return CreateWorldContext(
+                    world_name,
+                    type_registry,
+                    context => context.Server,
+                    WorldFlags.GameServer,
+                    world => ClientServerBootstrap.ServerWorlds.Add(world),
+                    "Runstar Server");
+        }
+
+        private metadata.RunstarOrganizerContext CreateWorldContext(
+                string world_name,
+                registry.TypeRegistry type_registry,
+                Func<RunstarNetworkWorldContext, registry.TypeRegistry> fallback_registry_selector,
+                WorldFlags world_flags,
+                Action<World> after_world_created = null,
+                string world_label = "world")
+        {
             registry.TypeRegistry selected_registry =
                     type_registry;
 
             if (selected_registry == null &&
-                    NetworkWorldContext != null)
+                    NetworkWorldContext != null &&
+                    fallback_registry_selector != null)
             {
                 selected_registry =
-                        NetworkWorldContext.Server;
+                        fallback_registry_selector(NetworkWorldContext);
             }
 
             if (selected_registry == null)
             {
                 Debug.LogWarning(
-                        "RunstarWorldManager could not create server context. " +
-                        "No TypeRegistry was provided and no server registry exists.");
+                        "RunstarWorldManager could not create " + world_label + " context. " +
+                        "No TypeRegistry was provided and no " + world_label + " registry exists.");
 
                 return null;
             }
@@ -271,9 +239,9 @@ namespace RunstarSystems.ECS.Admin
             World world =
                     new World(
                             world_name,
-                            WorldFlags.GameServer);
+                            world_flags);
 
-            ClientServerBootstrap.ServerWorlds.Add(world);
+            after_world_created?.Invoke(world);
 
             return new metadata.RunstarOrganizerContext(
                     world,
@@ -281,6 +249,10 @@ namespace RunstarSystems.ECS.Admin
                     null);
         }
 
+        /*
+        *   Little delegation wrappers
+        *   to run the organizers for each world
+        */
         public void RunLocalWorld(
                 metadata.RunstarOrganizerContext context,
                 IReadOnlyList<IRunstarOrganizer> organizers = null,
@@ -329,6 +301,10 @@ namespace RunstarSystems.ECS.Admin
                     ServerSystemTypes);
         }
 
+        /*
+        *   Builds the world given wrapper function call
+        *
+        */
         private void RunWorld(
                 metadata.RunstarOrganizerContext context,
                 IReadOnlyList<IRunstarOrganizer> organizers,

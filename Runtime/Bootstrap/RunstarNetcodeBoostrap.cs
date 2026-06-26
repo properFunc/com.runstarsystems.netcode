@@ -6,9 +6,12 @@ namespace RunstarSystems.ECS.Admin
 {
     public sealed class RunstarNetcodeBootstrap : ClientServerBootstrap
     {
+        /*
+        *   Runs an empty world allowing the manager to
+        *   create the worlds anytime during runtime.
+        */
         public override bool Initialize(string defaultWorldName)
         {
-            Debug.Log("Runstar filler bootstrap active.");
 
             World filler_world =
                     new World(defaultWorldName);
