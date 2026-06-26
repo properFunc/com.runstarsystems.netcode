@@ -56,7 +56,6 @@ namespace RunstarSystems.ECS.Systems
         private static void PrintPlayerInput0(
                 components.DuelStickClientInputCommand client_input)
         {
-            Debug.Log("Frame: " + client_input.frame);
             Debug.Log(
                     "Server Player "
                     + client_input.input_0_local_player_index

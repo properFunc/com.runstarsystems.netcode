@@ -43,8 +43,6 @@ namespace RunstarSystems.ECS.Systems
         {
             frame++;
 
-            Debug.Log("Frame: " + frame);
-
             components.DuelStickPolledInput input =
                     new components.DuelStickPolledInput
                     {
