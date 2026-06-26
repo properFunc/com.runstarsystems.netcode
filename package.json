@@ -1,6 +1,6 @@
 {
   "name": "com.runstarsystems.netcode",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "Runstar ECS Netcode",
   "description": "Netcode for Entities extension for Runstar ECS Core.",
   "unity": "6000.0",
@@ -10,5 +10,12 @@
   "dependencies": {
     "com.runstarsystems.ecs": "1.0.3",
     "com.unity.netcode": "1.4.0"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "ClientServerSample",
+      "description": "Shows how to connect the server and client through ECS and Netcode ports.",
+      "path": "./Samples~/ClientServerExample"
+    }
+  ]
 }
