@@ -156,7 +156,7 @@ namespace RunstarSystems.ECS.Admin
         *   I reuse the same context struct so inherit is just null
         *   since it is only required for global
         */
-        public static metadata.RunstarOrganizerContext CreateLocalContext(
+        public metadata.RunstarOrganizerContext CreateLocalContext(
                 string default_world_name = "Runstar Local World",
                 registry.TypeRegistry type_registry = null)
         {
@@ -211,7 +211,7 @@ namespace RunstarSystems.ECS.Admin
         private metadata.RunstarOrganizerContext CreateWorldContext(
                 string world_name,
                 registry.TypeRegistry type_registry,
-                Func<RunstarNetworkWorldContext, registry.TypeRegistry> fallback_registry_selector,
+                Func<metadata.NetworkWorldContext, registry.TypeRegistry> fallback_registry_selector,
                 WorldFlags world_flags,
                 Action<World> after_world_created = null,
                 string world_label = "world")

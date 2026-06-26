@@ -8,27 +8,19 @@ namespace RunstarSystems.ECS.Systems
     {
         public void OnCreate(ref SystemState state)
         {
-            Entity entity;
+            state.RequireForUpdate<ClientTickRate>();
+        }
 
-            if (SystemAPI.HasSingleton<ClientTickRate>())
-            {
-                entity =
-                        SystemAPI.GetSingletonEntity<ClientTickRate>();
-            }
-            else
-            {
-                entity =
-                        state.EntityManager.CreateEntity();
-            }
+        public void OnUpdate(ref SystemState state)
+        {
+            Entity entity =
+                    SystemAPI.GetSingletonEntity<ClientTickRate>();
 
             ClientTickRate tick_rate =
-                    new ClientTickRate
-                    {
-                        TargetCommandSlack = 5,
-                        MaxCommandSlack = 15
-                    };
+                    SystemAPI.GetSingleton<ClientTickRate>();
 
-            tick_rate.ResolveDefaults();
+            tick_rate.TargetCommandSlack = 5;
+            tick_rate.NumAdditionalCommandsToSend = 15;
 
             state.EntityManager.SetComponentData(
                     entity,
